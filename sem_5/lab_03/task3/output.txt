@@ -1,0 +1,5 @@
+2 hello
+1 world
+1 hello
+1 execl
+2 programm
