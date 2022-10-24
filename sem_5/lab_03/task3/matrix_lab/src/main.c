@@ -27,26 +27,31 @@ int main(int argc, char **argv)
     sol.indexes = NULL;
     sol.data = NULL;
 
+    char output_file_name[64];
+    printf("Input output file name: \n");
+    scanf("%s", output_file_name);
+    output_file_name[strlen(output_file_name)] = '\0';
+
     switch (action)
     {
         case ADD_ACTION:
             rc = rc || (rc_err = read_matrix(&m1, argv[2]));
             rc = rc || (rc_err = read_matrix(&m2, argv[3]));
             rc = rc || (rc_err = create_add_matrix(&m1, &m2, &add_res));
-            rc = rc || (rc_err = print_matrix(add_res, argv[4]));
+            rc = rc || (rc_err = print_matrix(add_res, output_file_name));
             break;
         case MULTIP_ACTION:
             rc = rc || (rc_err = read_matrix(&m1, argv[2]));
             rc = rc || (rc_err = read_matrix(&m2, argv[3]));
             rc = rc || (rc_err = create_multip_matrix(&m1, &m2, &mult_res));
-            rc = rc || (rc_err = print_matrix(mult_res, argv[4]));
+            // rc = rc || (rc_err = print_matrix(mult_res, argv[4]));
             break;
         case TASK_ACTION:
             rc = rc || (rc_err = read_matrix(&m1, argv[2]));
             rc = rc || (rc_err = (m1.m != m1.n + 1) ? ERR_DIM_GAUS_METH : EXIT_SUCCESS);
             rc = rc || (rc_err = init_solution(&sol, m1.n));
             rc = rc || (rc_err = slae_solution(&m1, &sol));
-            rc = rc || (rc_err = print_slae_sol(&sol, argv[3]));
+            // rc = rc || (rc_err = print_slae_sol(&sol, argv[3]));
             free_solution(&sol);
             break;
         default:
@@ -73,7 +78,7 @@ int define_action(int argc, char *argv)
 
     if (argc == 4 && argv[0] == 'o')
         return TASK_ACTION;
-    else if (argc == 5 && argv[0] == 'a')
+    else if (argc == 4 && argv[0] == 'a')
         return ADD_ACTION;
     else if (argc == 5 && argv[0] == 'm')
         return MULTIP_ACTION;

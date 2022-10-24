@@ -73,6 +73,7 @@ func main() {
 	opts.inputFile = inFile
 	opts.outputFile = oFile
 
+	fmt.Println("Uniq: Read file")
 	strings, err := readStrings(opts.inputFile)
 
 	if err != nil {
@@ -82,6 +83,8 @@ func main() {
 
 	result := Uniq(strings, opts)
 
+
+	fmt.Println("Uniq: Write result")
 	for _, str := range result {
 		_, err = opts.outputFile.WriteString(str)
 		if err != nil {

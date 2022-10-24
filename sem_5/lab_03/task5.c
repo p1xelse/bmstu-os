@@ -13,18 +13,17 @@
 _Bool flag = false;
 
 
-void catch_sig(int sig_num)
+void sig_handler(int sig_num)
 {
 	flag = true;
-	printf("catch_sig: %d\n", sig_num);
+	printf("sig_handler: %d\n", sig_num);
 }
 
 int main()
 {
     int child[N];
     int fd[N];
-    char buf[64] = { 0 };
-    char *mes[N] = {"Hello from process 1\n", "Hello from process 2\n"};
+    char mes[N][64] = {"aaa\n", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"};
 
     if (pipe(fd) == -1)
     {
@@ -33,19 +32,19 @@ int main()
     }
 
     printf("Parent process start! PID: %d, GROUP: %d\n", getpid(), getpgrp());
-    signal(SIGINT, catch_sig);
+    signal(SIGINT, sig_handler);
     sleep(2);
 
     for (int i = 0; i < N; i++)
     {
-        int child_pid = fork();
+        child[i] = fork();
 
-        if(child_pid == -1)
+        if(child[i] == -1)
         {
             perror("Error fork\n");
             exit(1);
         }
-        else if (!child_pid)
+        else if (!child[i])
         {
             if (flag)
             {
@@ -58,7 +57,7 @@ int main()
         }        
         else
         {
-            child[i] = child_pid;
+            printf("Parent process: PID=%d; GROUP: %d, Child: PID=%d\n", getpid(), getpgrp(), child[i]);
         }
     }
 
@@ -68,30 +67,36 @@ int main()
 
 		pid_t child_pid = wait(&status);
 
-		printf("Child has finished: PID=%d. Status: %d\n", child_pid, status);
+        if(child_pid == -1)
+        {
+            perror("Error wait\n");
+            exit(1);
+        }
+
+		printf("Child has terminated: PID=%d. Status: %d\n", child_pid, status);
 
 		if (WIFEXITED(status))
 		{
-			printf("Child process %d finished. Code: %d\n", child_pid, WEXITSTATUS(status));
+			printf("Child process %d terminated. Code: %d\n", child_pid, WEXITSTATUS(status));
 		}
 		else if (WIFSIGNALED(status))
 		{
-			printf("Child process %d finished from signal with code: %d\n", child_pid, WTERMSIG(status));
+			printf("Child process %d terminated from signal with code: %d\n", child_pid, WTERMSIG(status));
 		}
 		else if (WIFSTOPPED(status))
 		{
-			printf("Child process %d finished stopped. Number signal: %d\n", child_pid, WSTOPSIG(status));
+			printf("Child process %d terminated stopped. Number signal: %d\n", child_pid, WSTOPSIG(status));
 		}
 	}
+
+    mes[0][0] = '\0';
 
     
     printf("\nMessage receive :\n");
     close(fd[1]);
-    read(fd[0], buf, 64);
-    printf("%s\n", buf);
-    
-
-    printf("Parent process finished! Children: %d, %d! \nParent: PID: %d, GROUP: %d\n", child[0], child[1], getpid(), getpgrp());
+    read(fd[0], mes[0], 64);
+    printf("%s\n", mes[0]);
 
     return 0;
 }
+

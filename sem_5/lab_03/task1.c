@@ -13,29 +13,27 @@ int main()
 
     for (int i = 0; i < N; i++)
     {
-        int child_pid = fork();
+        child[i] = fork();
 
-        if(child_pid == -1)
+        if(child[i] == -1)
         {
             perror("Fork error()\n");
             exit(1);
         }
-        else if (!child_pid)
+        else if (!child[i])
         {
-            printf("BEFORE SLEEP Child %d! PID: %d, PPID: %d, GROUP: %d \n", i + 1, getpid(), getppid(), getpgrp());
+            printf("BEFORE SLEEP Child: PID: %d, PPID: %d, GROUP: %d \n", getpid(), getppid(), getpgrp());
 
             sleep(TIME_SLEEP);
-            printf("AFTER SLEEP Child %d! PID: %d, PPID: %d, GROUP: %d\n", i + 1, getpid(), getppid(), getpgrp());
+            printf("AFTER SLEEP Child: PID: %d, PPID: %d, GROUP: %d\n", getpid(), getppid(), getpgrp());
             return 0;
         }
         else
         {
-            child[i] = child_pid;
+            printf("Parent process: PID=%d; GROUP: %d, Child: PID=%d\n", getpid(), getpgrp(), child[i]);
         }
         
     }
-
-    printf("Parent process finished! Children: %d, %d! \nParent: PID: %d, GROUP: %d\n", child[0], child[1], getpid(), getpgrp());
 
     return 0;
 }
